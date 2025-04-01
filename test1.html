@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horários de Aulas</title>
+    <style>
+        :root {
+            --frequencia: #126ae2;
+            --nota: #126ae2;
+            --prova: #126ae2;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .titulo_aula {
+            font-weight: bold;
+            font-size: 15px;
+            padding: 0 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .lables {
+            display: flex;
+        }
+
+        .lable-prova, .lable-frequencia, .lable-nota {
+            padding: 7px 15px;
+            margin-bottom: 10px;
+            border-radius: 500px;
+            text-align: center;
+            margin-right: 10px;
+            color: white;
+            font-size: 13px;
+        }
+
+        .lable-prova {
+            background-color: var(--prova);
+        }
+
+        .lable-frequencia {
+            background-color: var(--frequencia);
+        }
+    </style>
+</head>
+<body>
+    <h2>Horários das Aulas</h2>
+    <aulas-component></aulas-component>
+
+    <script>
+        class AulasComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.hoje = "ter"; // Define o dia atual como "terça-feira"
+            }
+
+            connectedCallback() {
+                this.loadData();
+            }
+
+            async loadData() {
+                try {
+                    const aulas = [
+                        {
+                            "id": 1,
+                            "disciplina": "S05 - Interface Homem-máquina",
+                            "data": "ter",
+                            "horario": "10:00",
+                            "local": "P1-S17",
+                            "prova_alert": false,
+                            "prova": "12/05",
+                            "frequencia": "10/25",
+                            "nota": "9"
+                        },
+                        {
+                            "id": 2,
+                            "disciplina": "E01 - Circuitos Elétricos em Corrente Contínua",
+                            "data": "ter",
+                            "horario": "10:00",
+                            "local": "P1-S17",
+                            "prova_alert": true,
+                            "prova": "12/05",
+                            "frequencia": "10/25",
+                            "nota": "5"
+                        },
+                        {
+                            "id": 3,
+                            "disciplina": "M02 - Álgebra e Geometria Analítica",
+                            "data": "ter",
+                            "horario": "10:00",
+                            "local": "P1-S17",
+                            "prova_alert": true,
+                            "prova": "12/05",
+                            "frequencia": "10/25",
+                            "nota": "7"
+                        }
+                    ];
+                    this.render(aulas);
+                } catch (error) {
+                    console.error('Erro ao carregar os dados das aulas:', error);
+                }
+            }
+
+            render(aulas) {
+                this.shadowRoot.innerHTML = "";
+
+                const aulasDia = aulas.filter(a => a.data === this.hoje);
+
+                const container = document.createElement('div');
+
+                aulasDia.forEach(a => {
+                    let provaDisplay = a.prova_alert ? '' : 'display: none;';
+                    let notaColor = this.getNotaColor(a.nota);
+
+                    const aulaDiv = document.createElement('div');
+                    aulaDiv.classList.add('comp-aula');
+                    aulaDiv.innerHTML = `
+                        <div class="lable-prova p_lable" style="${provaDisplay}">PROVA: <b>${a.prova}</b></div>
+                        <div class="titulo_aula">${a.disciplina}</div>
+                        <p class="p">Local e Horário: <b>${a.local} - ${a.horario}</b></p>
+                        <div class="lables">
+                            <div class="lable-frequencia p_lable">FALTAS: <b>${a.frequencia}</b></div>
+                            <div class="lable-nota p_lable" style="background-color: ${notaColor}">CR: <b>${a.nota}</b></div>
+                        </div>
+                    `;
+                    container.appendChild(aulaDiv);
+                });
+
+                this.shadowRoot.appendChild(container);
+            }
+
+            getNotaColor(nota) {
+                if (nota < 6) {
+                    return 'red';
+                } else if (nota >= 6 && nota < 8) {
+                    return 'orange';
+                } else {
+                    return 'green';
+                }
+            }
+        }
+
+        customElements.define('aulas-component', AulasComponent);
+    </script>
+</body>
+</html>
